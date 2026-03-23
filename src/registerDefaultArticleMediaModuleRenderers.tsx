@@ -274,9 +274,10 @@ export function registerDefaultArticleMediaModuleRenderers(
           if (!src) return null
 
           const poster = props.thumbSources[index] || props.mediumSources[index] || props.largeSources[index] || undefined
+          const id = typeof mediaItem.id === 'string' ? mediaItem.id : typeof mediaItem.id === 'number' ? String(mediaItem.id) : undefined
 
           return {
-            id: mediaItem.id,
+            id,
             src,
             poster,
             title: mediaItem.filename || undefined,
