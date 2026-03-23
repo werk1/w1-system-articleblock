@@ -17,10 +17,6 @@
     "./runtime": {
       "types": "./src/runtime.ts",
       "import": "./src/runtime.ts"
-    },
-    "./mediaRenderers": {
-      "types": "./src/mediaRenderers.ts",
-      "import": "./src/mediaRenderers.ts"
     }
   },
   "scripts": {
@@ -37,6 +33,7 @@
     "@werk1/w1-system-carouselblock": "file:../w1-system-carouselblock",
     "@werk1/w1-system-device-info": "file:../w1-system-device-info",
     "@werk1/w1-system-idml": "file:../w1-system-idml",
+    "@werk1/w1-system-video-carouselblock": "file:../w1-system-video-carouselblock",
     "@werk1/w1-system-videoblock": "file:../w1-system-videoblock"
   }
 }

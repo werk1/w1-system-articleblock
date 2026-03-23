@@ -73,7 +73,7 @@ Typisch ist der Ablauf so:
 
 - `src/runtime.ts`
   - enthält die eigentlichen Article-Komponenten
-- `src/mediaRenderers.ts`
+- `src/registerDefaultArticleMediaModuleRenderers.tsx`
   - registriert Standard-Renderer für Artikel-Media-Module
   - lädt optionale Plugins
 - `src/types.ts`

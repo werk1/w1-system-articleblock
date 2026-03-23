@@ -9,6 +9,7 @@ import {
   registerIdmlMediaModuleRenderer,
   type IdmlMediaModuleRendererProps,
 } from '@werk1/w1-system-idml/renderer'
+import { W1VideoCarouselBlock } from '@werk1/w1-system-video-carouselblock'
 import { W1VideoBlock } from '@werk1/w1-system-videoblock'
 
 type VideoCoordinationStoreGetter = React.ComponentProps<typeof W1VideoBlock>['videoCoordinationStore']
@@ -259,6 +260,63 @@ export function registerDefaultArticleMediaModuleRenderers(
           objectFit="contain"
           videoCoordinationStore={options.getVideoCoordinationStore}
           style={{ width: '100%', height: (props.config.height as number | string) ?? 'auto' }}
+        />
+      )
+    })
+  }
+
+  if (!getIdmlMediaModuleRenderer('video-carousel')) {
+    registerRenderer('video-carousel', (props) => {
+      const items = props.mediaItems
+        .map((mediaItem, index) => {
+          const sizes = mediaItem.sizes
+          const src = sizes?.lg?.url || sizes?.xl?.url || sizes?.md?.url || mediaItem.url || null
+          if (!src) return null
+
+          const poster = props.thumbSources[index] || props.mediumSources[index] || props.largeSources[index] || undefined
+
+          return {
+            id: mediaItem.id,
+            src,
+            poster,
+            title: mediaItem.filename || undefined,
+            alt: mediaItem.alt || undefined,
+            mediaType: 'video' as const,
+            muted: (props.config.muted as boolean) ?? true,
+            loop: (props.config.loop as boolean) ?? false,
+            preload: ((props.config.preload as 'none' | 'metadata' | 'auto') ?? 'metadata'),
+            playsInline: true,
+            objectFit: ((props.config.objectFit as 'contain' | 'cover' | 'fill' | 'none' | 'scale-down') ?? 'contain'),
+          }
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+
+      if (items.length === 0) return null
+
+      return (
+        <W1VideoCarouselBlock
+          deviceInfo={props.deviceInfo as DeviceInfo}
+          items={items}
+          videoCoordinationStore={options.getVideoCoordinationStore}
+          interactionMode={(props.config.interactionMode as 'default' | 'scrub' | 'scrub+buttons' | 'timeline') ?? 'default'}
+          layoutVariant={(props.config.layoutVariant as 'default' | 'kineticRail' | 'peek') ?? 'default'}
+          selectionMode={(props.config.selectionMode as 'swipe' | 'tap' | 'swipe+tap') ?? 'swipe+tap'}
+          activePlaybackMode={(props.config.activePlaybackMode as 'active-only' | 'active-and-neighbors' | 'active-only-resume') ?? 'active-only'}
+          initialIndex={(props.config.initialIndex as number) ?? 0}
+          loop={(props.config.carouselLoop as boolean) ?? false}
+          autoAdvance={(props.config.autoAdvance as boolean) ?? false}
+          autoplayActive={(props.config.autoplay as boolean) ?? false}
+          showIndicators={props.showDots}
+          showCounter={(props.config.showCounter as boolean) ?? false}
+          aspectRatio={(props.config.aspectRatio as number | string) ?? undefined}
+          width="100%"
+          height={props.height}
+          cardsPerView={(props.config.cardsPerView as number) ?? 1}
+          cardGapPx={(props.config.cardGapPx as number) ?? 12}
+          sidePaddingPx={(props.config.sidePaddingPx as number) ?? 0}
+          focusOnCenter={(props.config.focusOnCenter as boolean) ?? false}
+          focusOnCenterMagnetic={(props.config.focusOnCenterMagnetic as boolean) ?? false}
+          focusOnCenterThresholdPx={(props.config.focusOnCenterThresholdPx as number) ?? undefined}
         />
       )
     })

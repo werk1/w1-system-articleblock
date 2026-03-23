@@ -13,7 +13,7 @@ export {
   loadArticleMediaModulePlugins,
   registerDefaultArticleMediaModuleRenderers,
   type RegisterArticleMediaModuleRenderersOptions,
-} from './mediaRenderers'
+} from './registerDefaultArticleMediaModuleRenderers'
 export type {
   ArticleBlockInput,
   ArticleBodyProps,
