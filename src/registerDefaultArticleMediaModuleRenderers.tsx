@@ -11,8 +11,10 @@ import {
 } from '@werk1/w1-system-idml/renderer'
 import { W1VideoBlock } from '@werk1/w1-system-videoblock'
 
+type VideoCoordinationStoreGetter = React.ComponentProps<typeof W1VideoBlock>['videoCoordinationStore']
+
 export type RegisterArticleMediaModuleRenderersOptions = {
-  getVideoCoordinationStore?: () => unknown
+  getVideoCoordinationStore?: VideoCoordinationStoreGetter
 }
 
 const loadedPluginKeys = new Set<string>()
