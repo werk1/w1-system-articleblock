@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import * as React from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { W1AudioBlock } from '@werk1/w1-system-audioblock'
 import { W1CarouselBlock } from '@werk1/w1-system-carouselblock'
 import type { DeviceInfo } from '@werk1/w1-system-device-info'

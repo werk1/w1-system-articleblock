@@ -16,11 +16,17 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "target": "ES2022",
     "paths": {
       "react": [
         "../w1-system-core-v2/node_modules/@types/react/index.d.ts"
+      ],
+      "react/jsx-runtime": [
+        "../w1-system-core-v2/node_modules/@types/react/jsx-runtime.d.ts"
+      ],
+      "react/jsx-dev-runtime": [
+        "../w1-system-core-v2/node_modules/@types/react/jsx-dev-runtime.d.ts"
       ],
       "react-dom": [
         "../w1-system-core-v2/node_modules/@types/react-dom/index.d.ts"
@@ -45,7 +51,6 @@
     "src/index.ts",
     "src/types.ts",
     "src/runtime.ts",
-    "src/mediaRenderers.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.d.ts"

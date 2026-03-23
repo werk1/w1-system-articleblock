@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import * as React from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { W1CarouselBlock } from '@werk1/w1-system-carouselblock'
 import {
