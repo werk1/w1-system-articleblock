@@ -62,7 +62,7 @@ Typisch ist der Ablauf so:
 
 1. Das konsumierende System lädt Artikel, Menüs oder Query-Ergebnisse.
 2. Das konsumierende System baut daraus ein `ArticleBlockInput`.
-3. Eine Wrapper-Komponente übergibt zusätzlich `deviceInfo` und `isMobile`.
+3. Das konsumierende System ergänzt an einer zentralen Stelle `deviceInfo` und `isMobile`.
 4. Das Paket rendert den passenden Block.
 5. Für IDML-Inhalte nutzt das Paket die Renderer aus `@werk1/w1-system-idml/renderer`.
 6. Für Media-Module werden die Standard-Renderer registriert und optionale Plugins bei Bedarf nachgeladen.
@@ -95,6 +95,7 @@ In `w1-system-core-v2` bleibt typischerweise:
 Das heißt:
 
 - **Core baut die Daten auf**
+- **Core ergänzt die Runtime-Anbindung**
 - **dieses Paket rendert sie**
 
 ## Einbindung in ein Projekt
@@ -139,26 +140,50 @@ Beispiel:
 }
 ```
 
-### 4. Wrapper-Komponenten im Core behalten
+### 4. Zentrale Core-Anbindung in `resolveArticleBlockComponent.ts`
 
-Die Paket-Komponenten erwarten `deviceInfo` und optional `isMobile`. Im Core ist deshalb ein dünner Wrapper sinnvoll.
+Die Paket-Komponenten erwarten `deviceInfo` und optional `isMobile`.
+
+Statt mehrere Wrapper-Dateien im Core zu behalten, wird die Store-Anbindung zentral in `src/lib/blocks/article/resolveArticleBlockComponent.ts` gekapselt.
 
 Beispiel:
 
-```tsx
-'use client'
-
-import { DefaultArticleBlock as W1DefaultArticleBlock } from '@werk1/w1-system-articleblock'
-import { useBoundStore } from '@/stores/boundStore'
+```ts
+import type { ArticleBlockComponent } from '@/lib/pages/types'
 import type { ArticleBlockInput } from '@/lib/blocks/article/types'
+import React from 'react'
+import {
+  ArchiveArticleBlock as W1ArchiveArticleBlock,
+  DefaultArticleBlock as W1DefaultArticleBlock,
+  StoryArticleBlock as W1StoryArticleBlock,
+} from '@werk1/w1-system-articleblock'
+import { useBoundStore } from '@/stores/boundStore'
 
-export function DefaultArticleBlock({ block }: { block: ArticleBlockInput }) {
-  const isMobile = Boolean(useBoundStore((state) => state.device.is_deviceM))
-  const deviceInfo = useBoundStore((state) => state.device)
+const h = React.createElement
 
-  return <W1DefaultArticleBlock block={block} deviceInfo={deviceInfo} isMobile={isMobile} />
+function adaptArticleBlockComponent(
+  Component: React.ComponentType<{
+    block: ArticleBlockInput
+    deviceInfo: ReturnType<typeof useBoundStore.getState>['device']
+    isMobile?: boolean
+  }>,
+): ArticleBlockComponent {
+  return function ArticleBlockComponentAdapter({ block }) {
+    const isMobile = Boolean(useBoundStore((state) => state.device.is_deviceM))
+    const deviceInfo = useBoundStore((state) => state.device)
+
+    return h(Component, { block, deviceInfo, isMobile })
+  }
+}
+
+const articleBlockRegistry: Record<string, ArticleBlockComponent> = {
+  default: adaptArticleBlockComponent(W1DefaultArticleBlock),
+  story: adaptArticleBlockComponent(W1StoryArticleBlock),
+  archive: adaptArticleBlockComponent(W1ArchiveArticleBlock),
 }
 ```
+
+Damit bleibt das Paket generisch, während die Core-spezifische Store-Anbindung nur an einer Stelle lebt.
 
 ### 5. Standard-Media-Renderer im Frontend registrieren
 
