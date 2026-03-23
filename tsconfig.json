@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react",
+    "target": "ES2022",
+    "paths": {
+      "react": [
+        "../w1-system-core-v2/node_modules/@types/react/index.d.ts"
+      ],
+      "react/jsx-runtime": [
+        "../w1-system-core-v2/node_modules/@types/react/jsx-runtime.d.ts"
+      ],
+      "react-dom": [
+        "../w1-system-core-v2/node_modules/@types/react-dom/index.d.ts"
+      ],
+      "next": [
+        "../w1-system-core-v2/node_modules/next"
+      ],
+      "next/*": [
+        "../w1-system-core-v2/node_modules/next/*"
+      ]
+    },
+    "typeRoots": [
+      "../w1-system-core-v2/node_modules/@types"
+    ],
+    "types": [
+      "node",
+      "react",
+      "react-dom"
+    ]
+  },
+  "include": [
+    "src/index.ts",
+    "src/types.ts",
+    "src/runtime.ts",
+    "src/mediaRenderers.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
