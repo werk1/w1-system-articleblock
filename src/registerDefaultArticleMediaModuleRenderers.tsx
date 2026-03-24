@@ -14,6 +14,7 @@ import { W1VideoCarouselBlock } from '@werk1/w1-system-video-carouselblock'
 import { W1VideoBlock } from '@werk1/w1-system-videoblock'
 
 type VideoCoordinationStoreGetter = React.ComponentProps<typeof W1VideoBlock>['videoCoordinationStore']
+type CarouselItems = React.ComponentProps<typeof W1CarouselBlock>['items']
 
 export type RegisterArticleMediaModuleRenderersOptions = {
   getVideoCoordinationStore?: VideoCoordinationStoreGetter
@@ -47,6 +48,14 @@ function registerRenderer(
   renderer: (props: IdmlMediaModuleRendererProps) => React.ReactNode,
 ) {
   registerIdmlMediaModuleRenderer(key, renderer)
+}
+
+function buildCarouselItems(sources: string[], alt = ''): CarouselItems {
+  return sources.map((src, index) => ({
+    id: String(index),
+    src,
+    alt,
+  }))
 }
 
 export function registerDefaultArticleMediaModuleRenderers(
@@ -93,7 +102,7 @@ export function registerDefaultArticleMediaModuleRenderers(
         <>
           <W1CarouselBlock
             deviceInfo={props.deviceInfo as DeviceInfo}
-            mediaSource={{ type: 'directAccess', src: props.thumbSources }}
+            items={buildCarouselItems(props.thumbSources)}
             rendererVariant="kineticFreeStrip"
             height={Math.min(props.height, 216)}
             kineticFreeStripConfig={{
@@ -146,7 +155,7 @@ export function registerDefaultArticleMediaModuleRenderers(
       return (
         <W1CarouselBlock
           deviceInfo={props.deviceInfo as DeviceInfo}
-          mediaSource={{ type: 'directAccess', src: props.mediumSources }}
+          items={buildCarouselItems(props.mediumSources)}
           interactionMode="scrub"
           scrubConfig={{
             commitThreshold: 0.25,
@@ -352,7 +361,7 @@ export function registerDefaultArticleMediaModuleRenderers(
       return (
         <W1CarouselBlock
           deviceInfo={props.deviceInfo as DeviceInfo}
-          mediaSource={{ type: 'directAccess', src: props.mediumSources }}
+          items={buildCarouselItems(props.mediumSources)}
           rendererVariant="snappingStrip"
           snappingStripConfig={{
             thumbHeightPx: Math.min(props.height, 300),
