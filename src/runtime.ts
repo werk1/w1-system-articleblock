@@ -13,7 +13,9 @@ import {
 } from '@werk1/w1-system-idml/renderer'
 import type {
   ArticleBodyProps,
+  ArticleDeviceInfo,
   ArticleMenuComponentProps,
+  ArticleMenuRenderProps,
   DefaultArticleBlockProps,
   HeroRendererProps,
   NormalizedArticleRenderData,
@@ -210,7 +212,14 @@ export function ArticleBody({ article, deviceInfo, isMobile = false }: ArticleBo
   })
 }
 
-export function ArticleMenu({ items, activeKey, onActivate, deviceInfo, resetToken }: ArticleMenuComponentProps) {
+export function ArticleMenu({
+  items,
+  activeKey,
+  onActivate,
+  activeArticle,
+  deviceInfo,
+  resetToken,
+}: ArticleMenuRenderProps & { deviceInfo: ArticleDeviceInfo }) {
   if (items.length < 2) return null
 
   const activeIndex = items.findIndex((item) => item.key === activeKey)
@@ -247,7 +256,12 @@ export function ArticleMenu({ items, activeKey, onActivate, deviceInfo, resetTok
   })
 }
 
-export function DefaultArticleBlock({ block, deviceInfo, isMobile = false }: DefaultArticleBlockProps) {
+export function DefaultArticleBlock({
+  block,
+  deviceInfo,
+  isMobile = false,
+  MenuComponent,
+}: DefaultArticleBlockProps) {
   if (block.articles.length === 0) {
     throw new Error('DefaultArticleBlock requires at least one article')
   }
@@ -282,26 +296,36 @@ export function DefaultArticleBlock({ block, deviceInfo, isMobile = false }: Def
     [articleKeys, block.menu?.items],
   )
 
+  const menuRenderProps: ArticleMenuRenderProps = {
+    items: menuItems ?? [],
+    activeKey,
+    onActivate: (key: string) => {
+      if (articleKeys.has(key)) setActiveKey(key)
+    },
+    activeArticle: activeArticle as NormalizedArticleRenderData,
+    deviceInfo,
+    resetToken: block.blockKey,
+  }
+
   return h(
     'div',
     { style: { display: 'flex', flexDirection: 'column', width: '100%' } },
     menuItems && menuItems.length > 1
-      ? h(ArticleMenu, {
-          items: menuItems,
-          activeKey,
-          onActivate: (key: string) => {
-            if (articleKeys.has(key)) setActiveKey(key)
-          },
-          deviceInfo,
-          resetToken: block.blockKey,
-        })
+      ? MenuComponent
+        ? h(MenuComponent, menuRenderProps)
+        : h(ArticleMenu, { ...menuRenderProps, deviceInfo })
       : null,
     activeArticle.hero ? h(HeroRenderer, { hero: activeArticle.hero, isMobile }) : null,
     h(ArticleBody, { article: activeArticle as NormalizedArticleRenderData, deviceInfo, isMobile }),
   )
 }
 
-export function ArchiveArticleBlock({ block, deviceInfo, isMobile = false }: VariantArticleBlockProps) {
+export function ArchiveArticleBlock({
+  block,
+  deviceInfo,
+  isMobile = false,
+  MenuComponent,
+}: VariantArticleBlockProps) {
   return h(
     'section',
     {
@@ -317,11 +341,16 @@ export function ArchiveArticleBlock({ block, deviceInfo, isMobile = false }: Var
       { style: { width: '100%', padding: '0 1rem 1rem', color: '#3b3b39', fontSize: '0.8rem', fontWeight: 600 } },
       'Archive Block',
     ),
-    h(DefaultArticleBlock, { block, deviceInfo, isMobile }),
+    h(DefaultArticleBlock, { block, deviceInfo, isMobile, MenuComponent }),
   )
 }
 
-export function StoryArticleBlock({ block, deviceInfo, isMobile = false }: VariantArticleBlockProps) {
+export function StoryArticleBlock({
+  block,
+  deviceInfo,
+  isMobile = false,
+  MenuComponent,
+}: VariantArticleBlockProps) {
   return h(
     'section',
     {
@@ -345,6 +374,6 @@ export function StoryArticleBlock({ block, deviceInfo, isMobile = false }: Varia
       },
       'Story Block',
     ),
-    h(DefaultArticleBlock, { block, deviceInfo, isMobile }),
+    h(DefaultArticleBlock, { block, deviceInfo, isMobile, MenuComponent }),
   )
 }

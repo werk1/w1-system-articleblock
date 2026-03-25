@@ -65,6 +65,12 @@ export type ArticleMenuProps = {
   onActivate: (key: string) => void
 }
 
+export type ArticleMenuRenderProps = ArticleMenuProps & {
+  activeArticle: NormalizedArticleRenderData | null
+  deviceInfo?: ArticleDeviceInfo
+  resetToken?: string
+}
+
 export type ArticleBodyProps = {
   article: NormalizedArticleRenderData | null
   deviceInfo: ArticleDeviceInfo
@@ -85,10 +91,12 @@ export type DefaultArticleBlockProps = {
   block: ArticleBlockInput
   deviceInfo: ArticleDeviceInfo
   isMobile?: boolean
+  MenuComponent?: React.ComponentType<ArticleMenuRenderProps>
 }
 
 export type VariantArticleBlockProps = {
   block: ArticleBlockInput
   deviceInfo: ArticleDeviceInfo
   isMobile?: boolean
+  MenuComponent?: React.ComponentType<ArticleMenuRenderProps>
 }

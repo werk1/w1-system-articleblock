@@ -21,6 +21,7 @@ export type {
   ArticleMenuData,
   ArticleMenuItem,
   ArticleMenuProps,
+  ArticleMenuRenderProps,
   DefaultArticleBlockProps,
   HeroRendererProps,
   NormalizedArticleRenderData,
