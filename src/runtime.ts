@@ -224,18 +224,25 @@ export function ArticleMenu({
 
   const activeIndex = items.findIndex((item) => item.key === activeKey)
   const placeholderDataUrl = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300"%3E%3Crect width="200" height="300" fill="%23e0e0e0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E'
-  const thumbSources = items.map(
-    (item) =>
-      item.previewMedia?.sizes?.thumb?.url ||
-      item.previewMedia?.sizes?.sm?.url ||
-      item.previewMedia?.url ||
-      placeholderDataUrl,
-  )
+  const carouselItems = items.map((item, index) => {
+    const label = item.label ?? item.articleSlug ?? item.key
+
+    return {
+      id: item.key || String(index),
+      src:
+        item.previewMedia?.sizes?.thumb?.url ||
+        item.previewMedia?.sizes?.sm?.url ||
+        item.previewMedia?.url ||
+        placeholderDataUrl,
+      alt: label,
+      title: label,
+    }
+  })
 
   return h(W1CarouselBlock, {
     key: resetToken ?? 'article-menu',
     deviceInfo,
-    mediaSource: { type: 'directAccess', src: thumbSources },
+    items: carouselItems,
     rendererVariant: 'snappingStrip',
     height: 216,
     onSelectedIndexChange: (idx: number | null) => {
