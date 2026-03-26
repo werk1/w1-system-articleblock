@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { useEffect, useMemo, useState } from 'react'
 import { W1AudioBlock } from '@werk1/w1-system-audioblock'
 import { W1CarouselBlock } from '@werk1/w1-system-carouselblock'
 import type { DeviceInfo } from '@werk1/w1-system-device-info'
@@ -58,6 +57,129 @@ function buildCarouselItems(sources: string[], alt = ''): CarouselItems {
   }))
 }
 
+function CarouselStripMediaModule({ props }: { props: IdmlMediaModuleRendererProps }) {
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null)
+
+  return (
+    <>
+      <W1CarouselBlock
+        deviceInfo={props.deviceInfo as DeviceInfo}
+        items={buildCarouselItems(props.thumbSources)}
+        rendererVariant="kineticFreeStrip"
+        height={Math.min(props.height, 216)}
+        kineticFreeStripConfig={{
+          thumbHeightPx: 210,
+          thumbAspect: 2 / 3,
+          gapPx: 6,
+          sidePaddingPx: 0,
+          thumbRadiusPx: 3,
+          activeBorderColor: 'rgba(255, 255, 255, 0.4)',
+          overscrollMaxPx: 200,
+          bounceMs: 300,
+          minFlingVelocity: 0.15,
+          velocitySmoothing: 0.9,
+          maxFlingVelocity: 3,
+        }}
+        onSelectedIndexChange={setSelectedIndex}
+      />
+      {selectedIndex !== null && props.largeSources[selectedIndex] ? (
+        <div
+          key={selectedIndex}
+          style={{
+            width: '100%',
+            height: props.height,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <img
+            src={props.largeSources[selectedIndex]}
+            alt=""
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+          />
+        </div>
+      ) : null}
+    </>
+  )
+}
+
+function SlideshowMediaModule({ props }: { props: IdmlMediaModuleRendererProps }) {
+  const [currentIndex, setCurrentIndex] = React.useState(0)
+  const autoplay = Boolean(props.config.autoplay)
+  const interval = (props.config.autoplayInterval as number) || 3000
+  const preferredSources = props.isMobile ? props.mediumSources : props.largeSources
+  const fallbackSources = props.isMobile ? props.largeSources : props.mediumSources
+  const sources = preferredSources.length > 0 ? preferredSources : fallbackSources
+
+  React.useEffect(() => {
+    if (!autoplay || sources.length <= 1) return
+
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % sources.length)
+    }, interval)
+
+    return () => clearInterval(timer)
+  }, [autoplay, interval, sources.length])
+
+  const activeIndex = sources.length === 0 ? 0 : Math.min(currentIndex, sources.length - 1)
+
+  if (sources.length === 0) return null
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: props.height }}>
+      <img
+        src={sources[activeIndex]}
+        alt=""
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+          display: 'block',
+        }}
+      />
+      {props.showArrows && sources.length > 1 ? (
+        <>
+          <button onClick={() => setCurrentIndex((prev) => (prev - 1 + sources.length) % sources.length)} style={{ ...ARROW_BUTTON_STYLE, left: 10 }}>
+            ‹
+          </button>
+          <button onClick={() => setCurrentIndex((prev) => (prev + 1) % sources.length)} style={{ ...ARROW_BUTTON_STYLE, right: 10 }}>
+            ›
+          </button>
+        </>
+      ) : null}
+      {props.showDots && sources.length > 1 ? (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 10,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: 8,
+          }}
+        >
+          {sources.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentIndex(i)}
+              style={{
+                ...DOT_BUTTON_BASE_STYLE,
+                background: i === activeIndex ? 'white' : 'rgba(255,255,255,0.5)',
+              }}
+              aria-label={`Slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 export function registerDefaultArticleMediaModuleRenderers(
   options: RegisterArticleMediaModuleRenderersOptions = {},
 ) {
@@ -95,56 +217,7 @@ export function registerDefaultArticleMediaModuleRenderers(
   }
 
   if (!getIdmlMediaModuleRenderer('carousel-strip')) {
-    registerRenderer('carousel-strip', (props) => {
-      const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-
-      return (
-        <>
-          <W1CarouselBlock
-            deviceInfo={props.deviceInfo as DeviceInfo}
-            items={buildCarouselItems(props.thumbSources)}
-            rendererVariant="kineticFreeStrip"
-            height={Math.min(props.height, 216)}
-            kineticFreeStripConfig={{
-              thumbHeightPx: 210,
-              thumbAspect: 2 / 3,
-              gapPx: 6,
-              sidePaddingPx: 0,
-              thumbRadiusPx: 3,
-              activeBorderColor: 'rgba(255, 255, 255, 0.4)',
-              overscrollMaxPx: 200,
-              bounceMs: 300,
-              minFlingVelocity: 0.15,
-              velocitySmoothing: 0.9,
-              maxFlingVelocity: 3,
-            }}
-            onSelectedIndexChange={setSelectedIndex}
-          />
-          {selectedIndex !== null && props.largeSources[selectedIndex] ? (
-            <div
-              key={selectedIndex}
-              style={{
-                width: '100%',
-                height: props.height,
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              <img
-                src={props.largeSources[selectedIndex]}
-                alt=""
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ) : null}
-        </>
-      )
-    })
+    registerRenderer('carousel-strip', (props) => <CarouselStripMediaModule props={props} />)
   }
 
   if (!getIdmlMediaModuleRenderer('carousel-scrub')) {
@@ -175,80 +248,7 @@ export function registerDefaultArticleMediaModuleRenderers(
   }
 
   if (!getIdmlMediaModuleRenderer('slideshow')) {
-    registerRenderer('slideshow', (props) => {
-      const [currentIndex, setCurrentIndex] = useState(0)
-      const autoplay = Boolean(props.config.autoplay)
-      const interval = (props.config.autoplayInterval as number) || 3000
-      const preferredSources = props.isMobile ? props.mediumSources : props.largeSources
-      const fallbackSources = props.isMobile ? props.largeSources : props.mediumSources
-      const sources = preferredSources.length > 0 ? preferredSources : fallbackSources
-
-      useEffect(() => {
-        if (!autoplay || sources.length <= 1) return
-
-        const timer = setInterval(() => {
-          setCurrentIndex((prev) => (prev + 1) % sources.length)
-        }, interval)
-
-        return () => clearInterval(timer)
-      }, [autoplay, interval, sources.length])
-
-      const activeIndex = useMemo(
-        () => (sources.length === 0 ? 0 : Math.min(currentIndex, sources.length - 1)),
-        [currentIndex, sources.length],
-      )
-
-      if (sources.length === 0) return null
-
-      return (
-        <div style={{ position: 'relative', width: '100%', height: props.height }}>
-          <img
-            src={sources[activeIndex]}
-            alt=""
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              display: 'block',
-            }}
-          />
-          {props.showArrows && sources.length > 1 ? (
-            <>
-              <button onClick={() => setCurrentIndex((prev) => (prev - 1 + sources.length) % sources.length)} style={{ ...ARROW_BUTTON_STYLE, left: 10 }}>
-                ‹
-              </button>
-              <button onClick={() => setCurrentIndex((prev) => (prev + 1) % sources.length)} style={{ ...ARROW_BUTTON_STYLE, right: 10 }}>
-                ›
-              </button>
-            </>
-          ) : null}
-          {props.showDots && sources.length > 1 ? (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 10,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                gap: 8,
-              }}
-            >
-              {sources.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentIndex(i)}
-                  style={{
-                    ...DOT_BUTTON_BASE_STYLE,
-                    background: i === activeIndex ? 'white' : 'rgba(255,255,255,0.5)',
-                  }}
-                  aria-label={`Slide ${i + 1}`}
-                />
-              ))}
-            </div>
-          ) : null}
-        </div>
-      )
-    })
+    registerRenderer('slideshow', (props) => <SlideshowMediaModule props={props} />)
   }
 
   if (!getIdmlMediaModuleRenderer('video')) {
